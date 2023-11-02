@@ -1,7 +1,9 @@
 # Config
-src/onfig/
+./src/onfig/
 
 # Dependency directories
 node_modules/
 
+# Package Lock
+package-lock.json
 
