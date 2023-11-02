@@ -1,0 +1,29 @@
+{
+  "name": "gamestatus-bot",
+  "version": "1.0.0",
+  "description": "Updates activity status on discord bot to display player count and current map",
+  "main": "src/bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node bot"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DarklandServers/GameStatus-Bot.git"
+  },
+  "author": "JonesTown",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DarklandServers/GameStatus-Bot/issues"
+  },
+  "homepage": "https://github.com/DarklandServers/GameStatus-Bot#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.3"
+  },
+  "dependencies": {
+    "boxen": "^5.1.2",
+    "discord.js": "^14.13.0",
+    "gamedig": "^4.1.0",
+    "request": "^2.88.2"
+  }
+}
