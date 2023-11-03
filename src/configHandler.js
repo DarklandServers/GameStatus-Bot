@@ -6,25 +6,26 @@ const CONFIG_FILE = path.join(CONFIG_DIR, 'config.json');
 
 async function createDefaultConfig() {
     const defaultConfig = `{
-    "maxServers": 5,
-    "updateInterval": 3,
+  "maxServers": 5,
+  "updateInterval": 3,
+  "statusSpacer": "|",
 
-    "SERVERS": [
-      {
-        "RUNNING": false,
-        "serverName": "",
-        "botToken": "",
-        "apiType": 1,
-        "apiSite": "",
-        "serverIp": "",
-        "serverPort": "",
-        "queueMessage": "currently waiting in queue.",
-        "gameType": "garrysmod",
-        "showMap": false,
-        "debug": false
-      }
-    ]
-  }`;
+  "SERVERS": [
+    {
+      "RUNNING": false,
+      "serverName": "",
+      "botToken": "",
+      "apiType": 1,
+      "apiSite": "",
+      "serverIp": "",
+      "serverPort": "",
+      "queueMessage": "currently waiting in queue.",
+      "gameType": "garrysmod",
+      "showMap": false,
+      "debug": false
+    }
+  ]
+}`;
   
     try {
       await fs.access(CONFIG_FILE);
@@ -39,17 +40,4 @@ async function createDefaultConfig() {
     }
   }
 
-  //createDefaultConfig();
-
-  async function getConfig() {
-    try {
-      await fs.access(CONFIG_FILE);
-      const configData = await fs.readFile(CONFIG_FILE, 'utf8');
-      return JSON.parse(configData);
-    } catch (error) {
-      console.error('An error occurred while reading the config file:', error);
-      return null;
-    }
-  }
-  
-  module.exports = { createDefaultConfig, getConfig };
+  module.exports = { createDefaultConfig };
