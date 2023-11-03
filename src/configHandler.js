@@ -8,6 +8,7 @@ async function createDefaultConfig() {
     const defaultConfig = `{
   "maxServers": 5,
   "updateInterval": 3,
+  "statusPrefix": "Players",
   "statusSpacer": "|",
 
   "SERVERS": [

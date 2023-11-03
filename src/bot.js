@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits } = require('discord.js');
+const { Client, GatewayIntentBits, ActivityType } = require('discord.js');
 const boxen = require('boxen');
 const request = require('request')
 const Gamedig = require('gamedig')
@@ -58,7 +58,7 @@ async function startBots() {
                               status += ` (${queue} ${queueMessage})`
                           }
                           if (debug) console.log("Updated from battlemetrics, serverid: " + server.id)
-                          return client.user.setActivity(status, { type: statusType })
+                          return client.user.setActivity(CONFIG_DATA.statusPrefix + " " + status, { type: ActivityType.Custom, name: 'custom'})
                       } else {
                           return client.user.setActivity("Offline")
                       }
@@ -86,7 +86,7 @@ async function startBots() {
                       } else {
                           status = `${players}/${maxplayers}`;
                       }
-                      return client.user.setActivity(status, { type: statusType })
+                      return client.user.setActivity(CONFIG_DATA.statusPrefix + " " + status, { type: ActivityType.Custom, name: 'custom'})
                   }).catch((error) => {
                       console.log("Server is offline");
                       return client.user.setActivity("Offline")
