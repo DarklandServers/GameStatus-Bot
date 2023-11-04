@@ -10,7 +10,6 @@ async function createDefaultConfig() {
   "updateInterval": 3,
   "statusPrefix": "Players",
   "statusSpacer": "|",
-  "mapPrefix": "",
 
   "SERVERS": [
     {
@@ -24,6 +23,7 @@ async function createDefaultConfig() {
       "queueMessage": "",
       "gameType": "",
       "showMap": false,
+      "mapPrefix": "",
       "debug": false
     }
   ]
