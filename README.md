@@ -27,6 +27,35 @@ On the first launch, GameStatus-Bot auto-generates the configuration file, strea
 
 ### Default configuration
 
+**Single Server Configuration**
+
+```
+{
+  "maxServers": 5, //Max amount of servers that can be running
+  "updateInterval": 3, //How often to update the status
+  "statusPrefix": "Players", // Custom status prefix, leave blank to default to Playing
+  "statusSpacer": "|", //Spacer for between the player count and current map
+
+  "SERVERS": [
+    {
+      "RUNNING": false, //Enable or disable the bot from running
+      "serverName": "", //Server name to know what server bot is for
+      "botToken": "", //Discord bot token
+      "apiType": 1, //Api choice 1 = Battlemetrics, 2 = GameDig
+      "apiUrl": "", //Battlemetric url (https://api.battlemetrics.com/servers/YOUR_SERVER_ID)
+      "serverIp": "",
+      "serverPort": "",
+      "queueMessage": "currently waiting in queue.", //Message to display after queue number. (Only available using battlemetrics)
+      "gameType": "garrysmod", //Rember the game type
+      "showMap": false, //Show the map in status (Only available using gamedig)
+      "debug": false
+    }
+  ]
+}
+```
+
+**Multiple Server Configuration**
+
 ```
 {
   "maxServers": 5,
@@ -40,14 +69,31 @@ On the first launch, GameStatus-Bot auto-generates the configuration file, strea
       "serverName": "",
       "botToken": "",
       "apiType": 1,
-      "apiSite": "",
+      "apiUrl": "",
       "serverIp": "",
       "serverPort": "",
       "queueMessage": "currently waiting in queue.",
-      "gameType": "",
+      "gameType": "garrysmod",
+      "showMap": false,
+      "debug": false
+    },
+    {
+      "RUNNING": false,
+      "serverName": "",
+      "botToken": "",
+      "apiType": 1,
+      "apiUrl": "",
+      "serverIp": "",
+      "serverPort": "",
+      "queueMessage": "currently waiting in queue.",
+      "gameType": "garrysmod",
       "showMap": false,
       "debug": false
     }
   ]
 }
 ```
+
+# Discord Setup 🤖
+
+# Installation 🔨

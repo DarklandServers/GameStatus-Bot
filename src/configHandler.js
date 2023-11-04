@@ -17,11 +17,11 @@ async function createDefaultConfig() {
       "serverName": "",
       "botToken": "",
       "apiType": 1,
-      "apiSite": "",
+      "apiUrl": "",
       "serverIp": "",
       "serverPort": "",
-      "queueMessage": "currently waiting in queue.",
-      "gameType": "garrysmod",
+      "queueMessage": "",
+      "gameType": "",
       "showMap": false,
       "debug": false
     }
