@@ -35,6 +35,7 @@ On the first launch, GameStatus-Bot auto-generates the configuration file, strea
   "updateInterval": 3, //How often to update the status
   "statusPrefix": "Players", // Custom status prefix, leave blank to default to Playing
   "statusSpacer": "|", //Spacer for between the player count and current map
+  "mapPrefix": "fw", //Remove map prefix if used or leave blank to default
 
   "SERVERS": [
     {
@@ -62,6 +63,7 @@ On the first launch, GameStatus-Bot auto-generates the configuration file, strea
   "updateInterval": 3,
   "statusPrefix": "Players",
   "statusSpacer": "|",
+  "mapPrefix": "fw",
 
   "SERVERS": [
     {

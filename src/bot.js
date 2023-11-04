@@ -79,7 +79,8 @@ async function startBots() {
                       const players = state.raw.numplayers;
                       const maxplayers = state.maxplayers;
                       let mapData = state.map;
-                      mapData = mapData.replace("fw_", "").replace(/_/g, " ");
+                      const prefixRegex = new RegExp(CONFIG_DATA.mapPrefix, 'i');
+                      mapData = mapData.replace(prefixRegex, "").replace(/_/g, " ");
                       let status;
                       if (showMap) {
                           status = `${players}/${maxplayers} ${CONFIG_DATA.statusSpacer} ${mapData}`;

@@ -10,6 +10,7 @@ async function createDefaultConfig() {
   "updateInterval": 3,
   "statusPrefix": "Players",
   "statusSpacer": "|",
+  "mapPrefix": "",
 
   "SERVERS": [
     {
