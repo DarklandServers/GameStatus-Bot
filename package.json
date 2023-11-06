@@ -1,6 +1,6 @@
 {
   "name": "gamestatus-bot",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Updates activity status on discord bot to display player count and current map",
   "main": "src/bot.js",
   "scripts": {
@@ -22,6 +22,8 @@
   },
   "dependencies": {
     "boxen": "^5.1.2",
+    "chalk": "^4.1.2",
+    "discord-rpc": "^4.0.1",
     "discord.js": "^14.13.0",
     "gamedig": "^4.1.0",
     "request": "^2.88.2"

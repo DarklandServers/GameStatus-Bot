@@ -1,5 +1,6 @@
 # Config
 /src/config/
+/save/
 
 # Dependency directories
 node_modules/

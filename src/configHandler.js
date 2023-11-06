@@ -1,8 +1,9 @@
 const fs = require('fs').promises;
 const path = require('path');
 
-const CONFIG_DIR = path.join(__dirname, 'config');
-const CONFIG_FILE = path.join(CONFIG_DIR, 'config.json');
+
+const configDir = path.join(__dirname, 'config');
+const configFile = path.join(configDir, 'config.json');
 
 async function createDefaultConfig() {
     const defaultConfig = `{
@@ -16,6 +17,9 @@ async function createDefaultConfig() {
       "RUNNING": false,
       "serverName": "",
       "botToken": "",
+      "botAppId": "",
+      "botUserId": "",
+      "rpcEnable": false,
       "apiType": 1,
       "apiUrl": "",
       "serverIp": "",
@@ -30,12 +34,12 @@ async function createDefaultConfig() {
 }`;
   
     try {
-      await fs.access(CONFIG_FILE);
+      await fs.access(configFile);
     } catch (err) {
       try {
-        await fs.mkdir(CONFIG_DIR, { recursive: true });
-        await fs.writeFile(CONFIG_FILE, defaultConfig);
-        console.log('Config files were created successfully.');
+        await fs.mkdir(configDir, { recursive: true });
+        await fs.writeFile(configFile, defaultConfig);
+        console.log(chalk.white.bgGreen.bold('\nConfig files were created successfully!\n'));
       } catch (err) {
         console.error('An error occurred while creating config files:', err); 
       }
