@@ -1,12 +1,12 @@
-const fs = require('fs').promises;
+const fs = require('fs');
 const path = require('path');
-
+const chalk = require('chalk');
 
 const configDir = path.join(__dirname, 'config');
 const configFile = path.join(configDir, 'config.json');
 
-async function createDefaultConfig() {
-    const defaultConfig = `{
+function createDefaultConfig() {
+  const defaultConfig = `{
   "maxServers": 5,
   "updateInterval": 3,
   "statusPrefix": "Players",
@@ -27,23 +27,24 @@ async function createDefaultConfig() {
       "queueMessage": "",
       "gameType": "",
       "showMap": false,
-      "mapPrefix": "",
+      "mapPrefix": [""],
       "debug": false
     }
   ]
 }`;
-  
+
+  try {
+    fs.accessSync(configFile);
+  } catch (err) {
     try {
-      await fs.access(configFile);
+      fs.mkdirSync(configDir, { recursive: true });
+      fs.writeFileSync(configFile, defaultConfig);
+      console.log(chalk.white.bgGreen.bold('\nConfig files were created successfully!\n'));
+      process.exit();
     } catch (err) {
-      try {
-        await fs.mkdir(configDir, { recursive: true });
-        await fs.writeFile(configFile, defaultConfig);
-        console.log(chalk.white.bgGreen.bold('\nConfig files were created successfully!\n'));
-      } catch (err) {
-        console.error('An error occurred while creating config files:', err); 
-      }
+      console.error('An error occurred while creating config files:', err);
     }
   }
+}
 
-  module.exports = { createDefaultConfig };
+module.exports = createDefaultConfig;
