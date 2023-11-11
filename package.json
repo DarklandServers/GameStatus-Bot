@@ -1,6 +1,6 @@
 {
   "name": "gamestatus-bot",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Updates activity status on discord bot to display player count and current map",
   "main": "src/bot.js",
   "scripts": {
