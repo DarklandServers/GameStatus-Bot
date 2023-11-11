@@ -13,7 +13,7 @@ function startCheck() {
     if (runEnabled.length > configData.maxServers) {
         const title = `Server Max ${configData.maxServers}`;
         const message = `You are currently trying to run ${runEnabled.length} servers.\nPlease verify the max servers in config and try again.`;
-        console.log('\n' + boxen(message, { title: error.bold(title), titleAlignment: 'center', textAlignment: 'center', padding: 2, borderStyle: 'round' }));
+        console.log('\n' + boxen(message, { title: error.bold(title), titleAlignment: 'center', textAlignment: 'center', padding: 3, borderStyle: 'round' }));
         process.exit();
     }
 
@@ -24,7 +24,7 @@ function startCheck() {
 
     const botsLoaded = configData.SERVERS.map(server => {
         const statusIcon = server.RUNNING ? '🟢' : '🔴';
-        return `${statusIcon} ${server.serverName} Bot`;
+        return `${statusIcon}  ${server.serverName} Bot`;
     }).join('\n');
 
     console.log('\n' + boxen(botsLoaded, { title: chalk.bold('Loading Servers Bots 🤖'), titleAlignment: 'center', padding: 1, borderStyle: 'round' }));
