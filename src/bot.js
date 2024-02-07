@@ -34,9 +34,15 @@ try {
 							if (is_online == 'online') {
 								const players = server.players;
 								const maxplayers = server.maxPlayers;
-								const map = server.details.map;
-								const queue = server.details.rust_queued_players;
 								let status = `${players}/${maxplayers}`;
+								const mapData = server.details.map;
+								const mapName = mapData
+									.replace(new RegExp(`^(${mapPrefix.join('|')})_`, 'i'), '')
+									.replace(/_/g, ' ');
+								status = showMap
+									? `${players}/${maxplayers} ${configData.statusSpacer} ${mapName}`
+									: `${players}/${maxplayers}`;
+								const queue = server.details.rust_queued_players;
 								if (typeof queue !== 'undefined' && queue != '0') {
 									status += ` (${queue} ${queueMessage})`;
 								}
