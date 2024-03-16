@@ -1,10 +1,11 @@
 # Config
 /src/config/
 /save/
+/config/
 
 # Dependency directories
 node_modules/
 
 # Package Lock
 package-lock.json
-
+pnpm-lock.yaml

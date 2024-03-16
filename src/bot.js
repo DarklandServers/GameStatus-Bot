@@ -1,99 +1,154 @@
 const { Client, GatewayIntentBits, ActivityType } = require('discord.js');
 const request = require('request');
 const Gamedig = require('gamedig');
-const fs = require('fs');
+
+const fs = require('fs').promises;
 const path = require('path');
-const createDefaultConfig = require('./configHandler');
-const startCheck = require('./startCheck');
 
-createDefaultConfig();
-startCheck();
+const boxen = require('boxen');
+const chalk = require('chalk');
 
-try {
-	const configData = JSON.parse(
-		fs.readFileSync(path.join(__dirname, 'config', 'config.json'), 'utf8')
+const error = chalk.bold.red;
+const warning = chalk.bold.bgKeyword('orange');
+
+const configDir = path.join(__dirname, '../config');
+const configFile = path.join(configDir, 'config.json');
+
+/* CONFIG CHECK */
+async function createDefaultConfig() {
+	const defaultConfig = {
+		updateInterval: 3,
+		statusPrefix: 'Players',
+		mapSpacer: '🗺️',
+		SERVERS: [
+			{
+				RUNNING: false,
+				serverName: '',
+				botToken: '',
+				apiType: 1,
+				apiUrl: '',
+				serverIp: '',
+				serverPort: '',
+				queueMessage: '',
+				gameType: '',
+				showMap: false,
+				mapPrefix: [''],
+				debug: false,
+			},
+		],
+	};
+
+	try {
+		await fs.access(configFile);
+	} catch (err) {
+		try {
+			await fs.mkdir(configDir, { recursive: true });
+			await fs.writeFile(configFile, JSON.stringify(defaultConfig, null, 4));
+			console.log(chalk.bgGreen.bold('CONFIG FILE CREATED SUCCESSFULLY!!'));
+			process.exit(1);
+		} catch (err) {
+			console.error(
+				error('An error occurred while creating config files:'),
+				err
+			);
+		}
+	}
+}
+/* END CONFIG CHECK */
+
+/* GET CONFIG */
+async function getConfig() {
+	try {
+		const configFileData = await fs.readFile(configFile, 'utf8');
+		return JSON.parse(configFileData);
+	} catch (err) {
+		console.error(error('Error reading config file:'), err);
+		process.exit(1);
+	}
+}
+/* END GET CONFIG */
+
+/* START CHECK */
+async function startCheck(configData) {
+	if (configData.updateInterval < 2) {
+		console.log(
+			warning.bold(
+				'Please ensure your update interval is set to a minimum of 2 to avoid being flagged by Discord for spam.'
+			)
+		);
+		process.exit(1);
+	}
+
+	if (configData.SERVERS.filter((server) => server.RUNNING).length === 0) {
+		console.log(
+			warning.bold(
+				'No servers are marked as running in the configuration. Please update the configuration to start the bots.'
+			)
+		);
+		process.exit(1);
+	}
+
+	const botsLoaded = configData.SERVERS.filter((server) => server.RUNNING)
+		.map((server) => `🟢  ${server.serverName} Bot`)
+		.join('\n');
+
+	console.log(
+		boxen(botsLoaded, {
+			title: chalk.green.bold('Loading Servers Bots 🤖'),
+			titleAlignment: 'center',
+			padding: 1,
+			borderStyle: 'round',
+		})
 	);
-	const runEnabled = configData.SERVERS.filter((server) => server.RUNNING);
-	const updateInterval = 1000 * 60 * configData.updateInterval;
+}
+/* END START CHECK */
 
-	for (var i = 0; i < runEnabled.length; i++) {
-		function updateActivity() {
-			if (apiType === 1) {
-				require('tls').DEFAULT_ECDH_CURVE = 'auto';
-				request(
-					{
-						url: apiUrl,
-						headers: { json: true, Referer: 'discord-rustserverstatus' },
-						timeout: 10000,
-					},
-					function (err, res, body) {
-						if (!err && res.statusCode == 200) {
-							const jsonData = JSON.parse(body);
-							const server = jsonData.data.attributes;
-							const is_online = server.status;
-							if (is_online == 'online') {
-								const players = server.players;
-								const maxplayers = server.maxPlayers;
-								let status = `${players}/${maxplayers}`;
-								const mapData = server.details.map;
-								const mapName = mapData
-									.replace(new RegExp(`^(${mapPrefix.join('|')})_`, 'i'), '')
-									.replace(/_/g, ' ');
-								status = showMap
-									? `${players}/${maxplayers} ${configData.statusSpacer} ${mapName}`
-									: `${players}/${maxplayers}`;
-								const queue = server.details.rust_queued_players;
-								if (typeof queue !== 'undefined' && queue != '0') {
-									status += ` (${queue} ${queueMessage})`;
-								}
-								if (debug)
-									console.log(
-										'Updated from Battlemetrics, serverID: ' + server.id
-									);
-								//RETURN ONLINE
-								return client.user.setPresence({
-									activities: [
-										{
-											name: `${configData.statusPrefix} ${status}`,
-											type: ActivityType.Custom,
-										},
-									],
-									status: 'online',
-								});
-							} else {
-								//RETURN OFFLINE
-								return client.user.setPresence({
-									activities: [{ name: 'Offline', type: ActivityType.Custom }],
-									status: 'idle',
-								});
-							}
+async function updateActivity(client, configData, config) {
+	try {
+		const {
+			apiType,
+			apiUrl,
+			serverIp,
+			serverPort,
+			gameType,
+			showMap,
+			mapPrefix,
+			mapSuffix,
+			queueMessage,
+			debug,
+		} = config;
+
+		if (apiType === 1) {
+			require('tls').DEFAULT_ECDH_CURVE = 'auto';
+			request(
+				{
+					url: apiUrl,
+					headers: { json: true, Referer: 'discord-rustserverstatus' },
+					timeout: 10000,
+				},
+				function (err, res, body) {
+					if (!err && res.statusCode == 200) {
+						const jsonData = JSON.parse(body);
+						const server = jsonData.data.attributes;
+						if (debug) {
+							console.log('Results', jsonData);
 						}
-					}
-				);
-			} else if (apiType === 2) {
-				if (!serverIp || !serverPort) {
-					console.log('You have to configure server IP/Port');
-					process.exit();
-				} else {
-					Gamedig.query({
-						type: gameType,
-						host: serverIp,
-						port: serverPort,
-					})
-						.then((state) => {
-							if (debug) {
-								console.log(state);
-							}
-							const players = state.raw.numplayers;
-							const maxplayers = state.maxplayers;
-							let status = `${players}/${maxplayers}`;
-							const mapData = state.map;
+						const is_online = server.status;
+						if (is_online == 'online') {
+							const players = server.players;
+							const maxPlayers = server.maxPlayers;
+							let status = `${players}/${maxPlayers}`;
+							const mapData = server.details.map;
 							const mapName = mapData
-								.replace(new RegExp(`^(${mapPrefix.join('|')})_`, 'i'), '')
-								.replace(/_/g, ' ');
-							status = showMap
-								? `${players}/${maxplayers} ${configData.statusSpacer} ${mapName}`
-								: `${players}/${maxplayers}`;
+								? mapData
+										.replace(new RegExp(`^(${mapPrefix.join('|')})_`, 'i'), '')
+										.replace(/_/g, ' ')
+								: 'Unknown Map';
+							status += showMap ? ` ${configData.mapSpacer} ${mapName}` : '';
+							const queue = server.details.rust_queued_players;
+							if (typeof queue !== 'undefined' && queue != '0') {
+								status += ` (${queue} ${queueMessage})`;
+							}
 							//RETURN ONLINE
 							return client.user.setPresence({
 								activities: [
@@ -104,76 +159,104 @@ try {
 								],
 								status: 'online',
 							});
-						})
-						.catch(() => {
+						} else {
 							//RETURN OFFLINE
 							return client.user.setPresence({
 								activities: [{ name: 'Offline', type: ActivityType.Custom }],
 								status: 'idle',
 							});
-						});
+						}
+					}
 				}
+			);
+		} else if (apiType === 2) {
+			if (!serverIp || !serverPort) {
+				console.log('You have to configure server IP/Port');
+				//process.exit(1);
 			} else {
-				console.log('invalid API type');
-				process.exit();
+				Gamedig.query({
+					type: gameType,
+					host: serverIp,
+					port: serverPort,
+				})
+					.then((state) => {
+						if (debug) {
+							console.log(state);
+						}
+						const players = state.players.length;
+						const maxPlayers = state.maxplayers;
+						let status = `${configData.statusPrefix} ${players}/${maxPlayers}`;
+						const mapData = state.map;
+						const mapName = mapData
+							? mapData
+									.replace(new RegExp(`^(${mapPrefix.join('|')})_`, 'i'), '')
+									.replace(/_/g, ' ')
+							: 'Unknown Map';
+						status += showMap ? ` ${configData.mapSpacer} ${mapName}` : '';
+						//RETURN ONLINE
+						return client.user.setPresence({
+							activities: [
+								{
+									name: status,
+									type: ActivityType.Custom,
+								},
+							],
+							status: 'online',
+						});
+					})
+					.catch(() => {
+						//RETURN OFFLINE
+						return client.user.setPresence({
+							activities: [{ name: 'Offline', type: ActivityType.Custom }],
+							status: 'idle',
+						});
+					});
 			}
-		} /* STAT UPDATE END */
+		} else {
+			console.log('invalid API type');
+			process.exit(1);
+		}
+	} catch (err) {
+		console.error('An error occurred while updating activity:', err);
+	}
+}
 
-		var config = runEnabled[i];
-		const {
-			botToken,
-			apiType,
-			apiUrl,
-			serverIp,
-			serverPort,
-			queueMessage,
-			showMap,
-			mapPrefix,
-			gameType,
-			debug,
-		} = config;
+async function main() {
+	await createDefaultConfig();
+	const configData = await getConfig();
+	await startCheck(configData);
 
-		const client = new Client({
-			intents: [
-				GatewayIntentBits.Guilds,
-				GatewayIntentBits.GuildMessages,
-				GatewayIntentBits.MessageContent,
-			],
-		});
+	try {
+		const runEnabled = configData.SERVERS.filter((server) => server.RUNNING);
+		const updateInterval = 1000 * 60 * configData.updateInterval;
 
-		client.on('ready', () => {
-			console.log(
-				`Bot has started, with ${client.users.cache.size} users, in ${client.channels.cache.size} channels of ${client.guilds.cache.size} guilds.`
-			);
-			updateActivity();
-			setInterval(updateActivity, updateInterval);
-		});
+		for (const serverConfig of runEnabled) {
+			const botToken = serverConfig.botToken;
 
-		client.on('guildCreate', (guild) => {
-			console.log(
-				`New guild joined: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`
-			);
-		});
+			const client = new Client({
+				intents: [
+					GatewayIntentBits.Guilds,
+					GatewayIntentBits.GuildMessages,
+					GatewayIntentBits.MessageContent,
+				],
+			});
 
-		client.on('guildDelete', (guild) => {
-			console.log(`I have been removed from: ${guild.name} (id: ${guild.id})`);
-		});
-
-		client.on('error', function (error) {
-			if (debug) console.log(error);
-		});
-
-		process.on('unhandledRejection', (error) => {
-			if (error.code == 'TOKEN_INVALID')
-				return console.log(
-					'Error: An invalid token was provided.\nYou have maybe added client secret instead of BOT token.\nPlease set BOT token'
+			client.on('ready', () => {
+				console.log(
+					`Bot has started, with ${client.users.cache.size} users, in ${client.channels.cache.size} channels of ${client.guilds.cache.size} guilds.`
 				);
+				updateActivity(client, configData, serverConfig);
+				setInterval(
+					() => updateActivity(client, configData, serverConfig),
+					updateInterval
+				);
+			});
 
-			return console.error('Unhandled promise rejection:', error);
-		});
+			client.login(botToken).catch((err) => console.log(error(botToken)));
+		}
+	} catch (err) {
+		console.error('An error occurred:', err);
+	}
+}
 
-		client.login(botToken);
-	} /* END OF FOR LOOP */
-} catch (err) {
-	console.error('An error occurred:', err);
-} /* END OF TRY */
+main();
