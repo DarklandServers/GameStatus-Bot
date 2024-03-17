@@ -19,7 +19,7 @@ async function createDefaultConfig() {
 	const defaultConfig = {
 		updateInterval: 3,
 		statusPrefix: 'Players',
-		mapSpacer: '🗺️',
+		statusSpacer: '🗺️',
 		SERVERS: [
 			{
 				RUNNING: false,
