@@ -113,7 +113,6 @@ async function updateActivity(client, configData, config) {
 			gameType,
 			showMap,
 			mapPrefix,
-			mapSuffix,
 			queueMessage,
 			debug,
 		} = config;
@@ -137,14 +136,14 @@ async function updateActivity(client, configData, config) {
 						if (is_online == 'online') {
 							const players = server.players;
 							const maxPlayers = server.maxPlayers;
-							let status = `${players}/${maxPlayers}`;
+							let status = `${configData.statusPrefix} ${players}/${maxPlayers}`;
 							const mapData = server.details.map;
 							const mapName = mapData
 								? mapData
 										.replace(new RegExp(`^(${mapPrefix.join('|')})_`, 'i'), '')
 										.replace(/_/g, ' ')
 								: 'Unknown Map';
-							status += showMap ? ` ${configData.mapSpacer} ${mapName}` : '';
+							status += showMap ? ` ${configData.statusSpacer} ${mapName}` : '';
 							const queue = server.details.rust_queued_players;
 							if (typeof queue !== 'undefined' && queue != '0') {
 								status += ` (${queue} ${queueMessage})`;
@@ -153,7 +152,7 @@ async function updateActivity(client, configData, config) {
 							return client.user.setPresence({
 								activities: [
 									{
-										name: `${configData.statusPrefix} ${status}`,
+										name: status,
 										type: ActivityType.Custom,
 									},
 								],
@@ -192,7 +191,7 @@ async function updateActivity(client, configData, config) {
 									.replace(new RegExp(`^(${mapPrefix.join('|')})_`, 'i'), '')
 									.replace(/_/g, ' ')
 							: 'Unknown Map';
-						status += showMap ? ` ${configData.mapSpacer} ${mapName}` : '';
+						status += showMap ? ` ${configData.statusSpacer} ${mapName}` : '';
 						//RETURN ONLINE
 						return client.user.setPresence({
 							activities: [
