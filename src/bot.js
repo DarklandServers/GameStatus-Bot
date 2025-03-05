@@ -45,6 +45,7 @@ async function createDefaultConfig() {
 				gameType: '',
 				showMap: false,
 				mapPrefix: [''],
+				playerBots: false,
 				debug: false,
 			},
 		],
@@ -139,6 +140,23 @@ function formatMapName(mapData, mapPrefix) {
 }
 
 /**
+ * Gets the player count to display, applying the playerBots setting if needed
+ * @param {number} actualPlayers - The actual number of players on the server
+ * @param {boolean} playerBots - Whether to show fake players when the server is empty
+ * @returns {number} The player count to display
+ */
+function getDisplayPlayerCount(actualPlayers, playerBots) {
+	// If there are actual players or playerBots is disabled, return the actual count
+	if (actualPlayers > 0 || !playerBots) {
+		return actualPlayers;
+	}
+
+	// If playerBots is enabled and there are no actual players,
+	// return a random number between 1 and 3
+	return Math.floor(Math.random() * 5); // Returns a random number between 0 and 4
+}
+
+/**
  * Updates the Discord bot's activity status based on server information
  * @param {Client} client - Discord.js client
  * @param {Object} configData - Global configuration
@@ -157,6 +175,7 @@ async function updateActivity(client, configData, config) {
 			mapPrefix,
 			queueMessage,
 			debug,
+			playerBots,
 		} = config;
 
 		if (apiType === 1) {
@@ -195,12 +214,13 @@ async function updateActivity(client, configData, config) {
 					return setOfflineStatus(client);
 				}
 
-				const players = server.players;
+				const actualPlayers = server.players;
+				const displayPlayers = getDisplayPlayerCount(actualPlayers, playerBots);
 				const maxPlayers = server.maxPlayers;
 				const mapData = server.details.map;
 				const mapName = formatMapName(mapData, mapPrefix);
 
-				let status = `${configData.statusPrefix} ${players}/${maxPlayers}`;
+				let status = `${configData.statusPrefix} ${displayPlayers}/${maxPlayers}`;
 
 				if (showMap) {
 					status += ` ${configData.statusSpacer} ${mapName}`;
@@ -234,12 +254,13 @@ async function updateActivity(client, configData, config) {
 					console.log(state);
 				}
 
-				const players = state.players.length;
+				const actualPlayers = state.players.length;
+				const displayPlayers = getDisplayPlayerCount(actualPlayers, playerBots);
 				const maxPlayers = state.maxplayers;
 				const mapData = state.map;
 				const mapName = formatMapName(mapData, mapPrefix);
 
-				let status = `${configData.statusPrefix} ${players}/${maxPlayers}`;
+				let status = `${configData.statusPrefix} ${displayPlayers}/${maxPlayers}`;
 
 				if (showMap) {
 					status += ` ${configData.statusSpacer} ${mapName}`;
