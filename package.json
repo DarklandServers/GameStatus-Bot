@@ -1,9 +1,12 @@
 {
-	"name": "GameStatus-Bot",
-	"version": "1.0.3",
+	"name": "gamestatus-bot",
+	"version": "1.0.4",
 	"description": "Stay in the loop with our Discord bot for instant server status updates!",
 	"main": "src/bot.js",
+	"type": "module",
 	"scripts": {
+		"start": "node src/bot.js",
+		"dev": "nodemon src/bot.js",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"repository": {
@@ -14,17 +17,18 @@
 		"url": "https://github.com/DarklandServers/GameStatus-Bot/issues"
 	},
 	"homepage": "https://github.com/DarklandServers/GameStatus-Bot#readme",
-	"devDependencies": {
-		"nodemon": "^3.1.0"
-	},
 	"keywords": [],
 	"author": "Darkland Studio",
 	"license": "ISC",
+	"packageManager": "pnpm@10.5.2",
+	"devDependencies": {
+		"nodemon": "^3.1.9"
+	},
 	"dependencies": {
-		"boxen": "5.1.2",
-		"chalk": "4.1.2",
-		"discord.js": "^14.14.1",
-		"gamedig": "4.3.1",
-		"request": "^2.88.2"
+		"boxen": "^8.0.1",
+		"chalk": "^5.4.1",
+		"discord.js": "^14.18.0",
+		"gamedig": "^5.2.0",
+		"node-fetch": "^3.3.2"
 	}
 }

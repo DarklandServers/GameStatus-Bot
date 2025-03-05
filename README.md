@@ -18,6 +18,7 @@ You can run it on windows, macOS, linux or docker, see the installation section 
 - Bot update status every 1-3 minutes
 - Display Map (Supported games)
 - Join Server (Supported games)
+- Player notifications to Discord channels
 
 # Configuration 📒
 
@@ -49,7 +50,8 @@ On the first launch, GameStatus-Bot auto-generates the configuration file, strea
       "gameType": "garrysmod", //Rember the game type
       "showMap": false, //Show the map in status (Only available using gamedig)
       "mapPrefix": "fw", //Remove map prefix if used or leave blank to default
-      "debug": false
+      "debug": false,
+      "notificationChannelId": "" //Discord channel ID to send notifications when players are online
     }
   ]
 }
@@ -78,7 +80,8 @@ On the first launch, GameStatus-Bot auto-generates the configuration file, strea
       "gameType": "garrysmod",
       "showMap": false,
       "mapPrefix": "fw", //Remove map prefix if used or leave blank to default
-      "debug": false
+      "debug": false,
+      "notificationChannelId": "" //Discord channel ID to send notifications when players are online
     },
     {
       "RUNNING": false,
@@ -92,11 +95,30 @@ On the first launch, GameStatus-Bot auto-generates the configuration file, strea
       "gameType": "garrysmod",
       "showMap": false,
       "mapPrefix": "fw", //Remove map prefix if used or leave blank to default
-      "debug": false
+      "debug": false,
+      "notificationChannelId": "" //Discord channel ID to send notifications when players are online
     }
   ]
 }
 ```
+
+# Features 🌟
+
+## Player Notifications
+
+The bot can send notifications to a specified Discord channel when players are online. To use this feature:
+
+1. Find the Discord channel ID where you want to receive notifications (Enable Developer Mode in Discord settings, then right-click on the channel and select "Copy ID")
+2. Add the channel ID to the `notificationChannelId` field in your server's configuration
+3. The bot will automatically send a message to this channel when players are online
+
+Notifications include:
+
+- Server name
+- Current player count and maximum player capacity
+- Current map (if map display is enabled)
+
+To prevent spam, notifications are only sent once every 30 minutes when players are detected.
 
 # Discord Setup 🤖
 
