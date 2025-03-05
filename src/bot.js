@@ -1,11 +1,4 @@
-import {
-	Client,
-	GatewayIntentBits,
-	ActivityType,
-	ButtonBuilder,
-	ButtonStyle,
-	ActionRowBuilder,
-} from 'discord.js';
+import { Client, GatewayIntentBits, ActivityType } from 'discord.js';
 import boxen from 'boxen';
 import chalk from 'chalk';
 import { GameDig } from 'gamedig';
@@ -52,9 +45,6 @@ async function createDefaultConfig() {
 				gameType: '',
 				showMap: false,
 				mapPrefix: [''],
-				discordMsg: false,
-				notificationChannelId: '',
-				joinURL: '',
 				debug: false,
 			},
 		],
@@ -167,7 +157,6 @@ async function updateActivity(client, configData, config) {
 			mapPrefix,
 			queueMessage,
 			debug,
-			notificationChannelId,
 		} = config;
 
 		if (apiType === 1) {
@@ -222,18 +211,6 @@ async function updateActivity(client, configData, config) {
 					status += ` (${queue} ${queueMessage})`;
 				}
 
-				// Send notification if there are players and a notification channel is configured
-				if (players > 0 && notificationChannelId) {
-					sendPlayerNotification(
-						client,
-						config,
-						players,
-						maxPlayers,
-						mapName,
-						configData
-					);
-				}
-
 				return setOnlineStatus(client, status);
 			} catch (error) {
 				console.error('Error fetching API data:', error);
@@ -257,9 +234,7 @@ async function updateActivity(client, configData, config) {
 					console.log(state);
 				}
 
-				const serverName = state.name;
 				const players = state.players.length;
-				/* const playerName =  */
 				const maxPlayers = state.maxplayers;
 				const mapData = state.map;
 				const mapName = formatMapName(mapData, mapPrefix);
@@ -268,19 +243,6 @@ async function updateActivity(client, configData, config) {
 
 				if (showMap) {
 					status += ` ${configData.statusSpacer} ${mapName}`;
-				}
-
-				// Send notification if there are players and a notification channel is configured
-				if (players > 0 && notificationChannelId) {
-					sendPlayerNotification(
-						client,
-						config,
-						serverName,
-						players,
-						maxPlayers,
-						mapName,
-						configData
-					);
 				}
 
 				return setOnlineStatus(client, status);
@@ -328,123 +290,6 @@ function setOfflineStatus(client) {
 		activities: [{ name: 'Offline', type: ActivityType.Custom }],
 		status: 'idle',
 	});
-}
-
-/**
- * Sends a notification to the configured channel when players are online
- * @param {Client} client - Discord.js client
- * @param {Object} configData - Global configuration data
- * @param {Object} config - Server-specific configuration
- * @param {number} players - Current player count
- * @param {number} maxPlayers - Maximum player count
- * @param {string} mapName - Current map name
- * @returns {Promise<void>}
- */
-async function sendPlayerNotification(
-	client,
-	config,
-	serverName,
-	players,
-	maxPlayers,
-	mapName,
-	configData
-) {
-	try {
-		const { notificationChannelId, serverIp, serverPort, joinURL, discordMsg } =
-			config;
-
-		// If discordMsg is explicitly set to false, don't send any notifications
-		if (discordMsg === false) {
-			return;
-		}
-
-		const channel = client.channels.cache.get(notificationChannelId);
-
-		// Only send notification if we have a valid channel
-		if (!channel) {
-			return;
-		}
-
-		const currentTime = Date.now();
-
-		// Calculate cooldown in milliseconds from the config (minutes to milliseconds)
-		const notificationCooldown =
-			(configData.notificationCooldown || 30) * 60 * 1000;
-
-		// Only send a notification if it's been at least the configured cooldown time since the last one
-		// This prevents spam when the player count fluctuates
-		if (
-			!config.lastNotificationTime ||
-			currentTime - config.lastNotificationTime > notificationCooldown
-		) {
-			// Create an embedded message
-			const embed = {
-				color: 0x45833c, // Green color
-				title: `${serverName}`,
-				description: `The server is online with players!`,
-				fields: [
-					{
-						name: ':bust_in_silhouette: **Players**',
-						value: `**${players}/${maxPlayers}**`,
-						inline: true,
-					},
-				],
-				timestamp: new Date(),
-				footer: {
-					text: 'Server Status Bot',
-				},
-			};
-
-			// Add map field if available
-			if (mapName && mapName !== 'Unknown Map') {
-				embed.fields.push({
-					name: ':map: **Current Map**',
-					value: `**${mapName}**`,
-					inline: true,
-				});
-			}
-
-			// Add server connection information in a code block
-			if (serverIp) {
-				const connectionInfo = serverPort
-					? `${serverIp}:${serverPort}`
-					: serverIp;
-
-				embed.fields.push({
-					name: '**Connection Info**',
-					value: `\`\`\`\n${connectionInfo}\n\`\`\``,
-					inline: false,
-				});
-			}
-
-			// Prepare message options with the embed
-			const messageOptions = { embeds: [embed] };
-
-			// Add a button component if joinURL is provided
-			if (joinURL && joinURL.trim() !== '') {
-				// Create a button for joining the server
-				const joinButton = new ButtonBuilder()
-					.setLabel('Join Server')
-					.setStyle(ButtonStyle.Link)
-					.setURL(joinURL)
-					.setEmoji('🎮');
-
-				// Create an action row with the button
-				const actionRow = new ActionRowBuilder().addComponents(joinButton);
-
-				// Add the action row to the message options
-				messageOptions.components = [actionRow];
-			}
-
-			// Send the message with embed and possibly a button
-			await channel.send(messageOptions);
-
-			// Update the last notification time
-			config.lastNotificationTime = currentTime;
-		}
-	} catch (err) {
-		console.error(ERROR('Error sending player notification:'), err);
-	}
 }
 
 /**
