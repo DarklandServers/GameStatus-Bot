@@ -1,6 +1,6 @@
 {
 	"name": "gamestatus-bot",
-	"version": "1.0.4",
+	"version": "1.0.5",
 	"description": "Stay in the loop with our Discord bot for instant server status updates!",
 	"main": "src/bot.js",
 	"type": "module",
